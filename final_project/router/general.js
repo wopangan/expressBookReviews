@@ -32,11 +32,11 @@ public_users.get('/isbn/:isbn',function (req, res) {
 public_users.get('/author/:author',function (req, res) {
   const author = req.params.author;
   const keys = Object.keys(books); // get all the keys
-  let results = []; // to collec and store all the books written by the searched author
+  let results = []; // to collect and store all the books written by the searched author
 
   // loop through the books and check for matching author
   keys.forEach(key => {
-    if (books[key].author.toLowerCase() === author.toLowerCase()) {
+    if (books[key].author.toLowerCase() === author) {
       results.push(books[key]);
     }
   })
@@ -52,11 +52,33 @@ public_users.get('/author/:author',function (req, res) {
 // To be continued...
 // Task 4: Get all books based on title 
 public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const title = req.params.title.toLowerCase();
+  // const keys = Object.keys(books);
+  let results = [];
+
+  // keys.forEach(key => {
+  //   if (books[key].title.toLowerCase() === title) {
+  //     results.push(books[key]);
+  //   }
+  // });
+
+  // in other approach
+
+  for (const key in books) {
+    if (books[key].title.toLowerCase() === title) {
+      results.push(books[key])
+    }
+  }
+
+  // check if title of the books exists
+  if (results.length > 0) {
+    res.send(results);
+  } else {
+    res.status(404).json({ message: "Title not found"});
+  }
 });
 
-//  Get book review
+//  Task 5: Get book review (WIP)
 public_users.get('/review/:isbn',function (req, res) {
   //Write your code here
   return res.status(300).json({message: "Yet to be implemented"});
