@@ -4,10 +4,27 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
-
+// Task 6: Complete the code for registering new user
+// this is connected to auth_users.js -> isValid
 public_users.post("/register", (req,res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const {username, password} = req.body;
+
+  // The code should take the ‘username’ and ‘password’ provided in the body of the request for registration. 
+  // If the username already exists, it must mention the same & must also show other errors like 
+  // eg. when username &/ password are not provided.
+
+  if (!username && !password) {
+    return res.status(400).json({ message: "Please fill up your username and password."});
+  }
+
+  if (!isValid(username)) {
+    // if the username & password are provided and valid,
+    users.push({ "username": username, "password": password});
+    return res.status(200).json({ message: "Registered successfully"});
+  } else {
+    return res.status(400).json({ message: "Username already exists!"});
+  }
+
 });
 
 // Task 1: Get the book list available in the shop
@@ -49,7 +66,6 @@ public_users.get('/author/:author',function (req, res) {
   }
 });
 
-// To be continued...
 // Task 4: Get all books based on title 
 public_users.get('/title/:title',function (req, res) {
   const title = req.params.title.toLowerCase();
@@ -78,10 +94,17 @@ public_users.get('/title/:title',function (req, res) {
   }
 });
 
-//  Task 5: Get book review (WIP)
+//  Task 5: Get book review based on ISBN
 public_users.get('/review/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const isbn = req.params.isbn;
+
+  if (isbn && books[isbn]) {
+    const bookReview = books[isbn].reviews;
+    return res.send(bookReview);
+  } else {
+    res.status(404).json({ message: "Book review not found"});
+  }
+
 });
 
 module.exports.general = public_users;
