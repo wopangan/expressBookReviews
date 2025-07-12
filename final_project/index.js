@@ -26,16 +26,16 @@ app.use("/customer/auth/*", function auth(req,res,next){
         let token = req.session.authorization['accessToken'];
 
         // verify jwt token
-        jwt.verify(token, JWT_SECRET, (err, res) => {
+        jwt.verify(token, JWT_SECRET, (err, decoded) => {
             if (!err) {
-                res.user = user;
+                res.user = decoded;
                 next();
             } else{
-                return res.status(404).json({ message: "User not authenticated."});
+                return res.status(403).json({ message: "User not authenticated or expired token."});
             }   
         });
     } else {
-        return res.status(404).json({ message: "User not logged in."});
+        return res.status(401).json({ message: "You must be logged in."});
     }
 });
  
