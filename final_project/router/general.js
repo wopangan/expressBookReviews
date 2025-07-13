@@ -1,34 +1,27 @@
 const express = require('express');
 let books = require("./booksdb.js");
-let isValid = require("./auth_users.js").isValid;
+let isUsernameTaken = require("./auth_users.js").isUsernameTaken;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
-// Task 6: Complete the code for registering new user
-// this is connected to auth_users.js -> isValid
+// Register a new user if the username is not taken
+// Connected to auth_users.js and registered in index.js
 public_users.post("/register", (req,res) => {
   const {username, password} = req.body;
 
-  // The code should take the ‘username’ and ‘password’ provided in the body of the request for registration. 
-  // If the username already exists, it must mention the same & must also show other errors like 
-  // eg. when username &/ password are not provided.
-
-  if (!username && !password) {
+  if (!username || !password) {
     return res.status(400).json({ message: "Please fill up your username and password."});
   }
 
-  if (!isValid(username)) {
-    // if the username & password are provided and valid,
+  if (!isUsernameTaken(username)) {
     users.push({ "username": username, "password": password});
     return res.status(200).json({ message: "Registered successfully"});
   } else {
-    return res.status(400).json({ message: "Username already exists!"});
+    return res.status(400).json({ message: "Username is taken."});
   }
-
 });
 
-// Task 10: Modify by using Promise callbacks or async-await with Axios.
-// Task 1: Get the book list available in the shop
+// Get the list of all boks (simulated using Promises)
 public_users.get('/books', function (req, res) {
   new Promise((resolve) =>{
     setTimeout(() => { 
@@ -43,8 +36,7 @@ public_users.get('/books', function (req, res) {
   })
 });
 
-// Task 11: Get book details based on ISBN using Promises callbacks or async-await with Axios
-// Task 2: Get book details based on ISBN
+// Get book details based on ISBN (simulated using Promises)
 public_users.get('/isbn/:isbn', function (req, res) {
   const id = req.params.isbn;
   
@@ -66,8 +58,7 @@ public_users.get('/isbn/:isbn', function (req, res) {
   })
 });
 
-// Task 12: Get book details based on author using Promise callbacks or async-await with Axios
-// Task 3: Get book details based on author
+// Get book details based by author name (simulated using async-await)
 public_users.get('/author/:author', async function (req, res) {
   const author = req.params.author;
   const keys = Object.keys(books); // get all the keys
@@ -97,8 +88,7 @@ public_users.get('/author/:author', async function (req, res) {
   }
 });
 
-// Task 13: Get book details based on title using Promise callbacks or async-await with Axios
-// Task 4: Get book details based on title 
+// Get book details by title (simulated using async-await)
 public_users.get('/title/:title', async function (req, res) {
   const title = req.params.title;
   let results = [];
@@ -127,7 +117,7 @@ public_users.get('/title/:title', async function (req, res) {
   }
 });
 
-//  Task 5: Get book review based on ISBN
+//  Get book review/s based on ISBN
 public_users.get('/review/:isbn',function (req, res) {
   const isbn = req.params.isbn;
 

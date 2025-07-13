@@ -12,25 +12,26 @@ const SESSION_SECRET = process.env.SESSION_SECRET;
 
 app.use(express.json());
 
+// Enable sessions for customer routes
 app.use("/customer",session({
     secret: SESSION_SECRET,
     resave: true, 
     saveUninitialized: true
 }));
 
-// Update the authentication code with session authorization feature
+// Middleware to authorize routes.
+// Verifies the user's JWT token stored in the session.
 app.use("/customer/auth/*", function auth(req,res,next){
+    const sessionAuth = req.session.authorization;
 
-    // check if user has logged in and has valid access token
-    if (req.session.authorization) {
-        let token = req.session.authorization['accessToken'];
+    if (sessionAuth) {
+        const token = sessionAuth['accessToken'];
 
-        // verify jwt token
         jwt.verify(token, JWT_SECRET, (err, decoded) => {
             if (!err) {
                 res.user = decoded;
                 next();
-            } else{
+            } else {
                 return res.status(403).json({ message: "User not authenticated or expired token."});
             }   
         });
@@ -39,7 +40,7 @@ app.use("/customer/auth/*", function auth(req,res,next){
     }
 });
  
-const PORT =5000;
+const PORT = 5000;
 
 app.use("/customer", customer_routes);
 app.use("/", genl_routes);

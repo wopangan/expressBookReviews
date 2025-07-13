@@ -6,8 +6,9 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 let users = [];
 
-const isValid = (username) => { //returns boolean
-  // check if the username is valid
+// Check if a username is already taken.
+// Returns true if the username exists in the users array.
+const isUsernameTaken = (username) => {
   let usersWithSameName = users.filter(user => user.username === username);
 
   if (usersWithSameName.length > 0){
@@ -17,8 +18,9 @@ const isValid = (username) => { //returns boolean
   }
 }
 
-const authenticatedUser = (username,password) => { //returns boolean
-  // check if username and password match the one we have in records.
+// Authenticates a user by checking if username and password match any record.
+const authenticatedUser = (username,password) => {
+  // Check if the provided username and password match any existing user record.
   const userMatch = users.filter(user => user.username === username && user.password === password)
 
   if (userMatch.length > 0) {
@@ -28,8 +30,8 @@ const authenticatedUser = (username,password) => { //returns boolean
   }
 }
 
-// Task 7: Complete the code for logging in as a registered user
-// connect authenticatedUser()
+// Logs in a registered user.
+// Generates a JWT token for the user and stores it in a session.
 regd_users.post("/login", (req,res) => {
   const {username, password} = req.body;
 
@@ -37,11 +39,9 @@ regd_users.post("/login", (req,res) => {
     return res.status(400).json({ message: "Username and password are required."});
   }
 
-  // Authenticate user and generate jwt token for the user 
   if (authenticatedUser(username, password)) {
     let accessToken = jwt.sign({ data: password }, JWT_SECRET, {expiresIn: 60 }); // session expires in 60 seconds.
 
-    // store access token and username in session
     req.session.authorization = {accessToken};
     req.session.username = username; 
     return res.status(200).json({ message: "User successfully logged in!"});
@@ -50,7 +50,7 @@ regd_users.post("/login", (req,res) => {
   }
 });
 
-// Task 8: Complete the code for adding or modifying a book review.
+// Adds or modifies a book review for the logged-in user.
 regd_users.put("/auth/review/:isbn", (req, res) => {
   const review = req.query.review;
   const username = req.session.username;
@@ -69,11 +69,10 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
     return res.status(200).json({ message });
   }
 
-  // if book not found
   return res.status(404).json({ message: "Book does not exist."});
 });
 
-// Task 9: Complete the code for deleting a book review
+// Deletes a book review posted by the logged-in user.
 regd_users.delete("/auth/review/:isbn", (req, res) => {
   const username = req.session.username;
   const id = req.params.isbn;
@@ -87,5 +86,5 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
 });
 
 module.exports.authenticated = regd_users;
-module.exports.isValid = isValid;
+module.exports.isUsernameTaken = isUsernameTaken;
 module.exports.users = users;
